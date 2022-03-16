@@ -1,0 +1,35 @@
+vsphere_server   = "vcenter.mydomain.local"
+vsphere_username = "Administrator@vsphere.local"
+vsphere_password = "changeme"
+
+datacenter    = "dc01"
+resource_pool = "pool01"
+cluster       = "cluster01"
+
+cp_vm_params = {
+  hostname       = "cp"
+  domain         = "k0s.local"
+  vcpu           = 4
+  ram            = 8192
+  disk_datastore = "datastore1"
+  disk_size      = 50
+  network_name   = "CP-Network"
+}
+
+worker_vm_params = {
+  hostname       = "worker"
+  domain         = "k0s.local"
+  vcpu           = 4
+  ram            = 8192
+  disk_datastore = "datastore1"
+  disk_size      = 50
+  network_name   = "Worker-Network"
+}
+
+template_properties = {
+  "password"    = "myPassword"
+  "public-keys" = "ssh-rsa ..."
+}
+
+cp_vm_count = 3
+worker_vm_count = 3
