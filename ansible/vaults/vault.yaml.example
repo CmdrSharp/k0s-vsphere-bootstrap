@@ -19,6 +19,13 @@ metallb:
   addresses:
   - 172.31.1.245-172.31.1.254
 
+istio:
+  enabled: true
+  ingress: true
+  injection_namespaces:
+  - istio-ingress
+  - default
+
 host:
   vm_user: ubuntu
   ssh_public_key: ""
