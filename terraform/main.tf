@@ -33,9 +33,9 @@ module "worker" {
   memory    = var.worker_vm_params["ram"]
   disk_size = var.worker_vm_params["disk_size"]
 
-  datastore_id     = data.vsphere_datastore.cp_datastore.id
+  datastore_id     = data.vsphere_datastore.worker_datastore.id
   resource_pool_id = data.vsphere_resource_pool.pool.id
-  network_id       = data.vsphere_network.cp_network.id
+  network_id       = data.vsphere_network.worker_network.id
 
   template_uuid = data.vsphere_content_library_item.vm_template.id
 
