@@ -10,7 +10,7 @@ Some of these things could be done using k0sctl alone - but some installations (
 - Templates k0sctl config files
 - Installs vSphere CPI CSI
 - Installs MetalLB (Can be disabled)
-- ~~Installs Istio~~ (ToDo)
+- Installs Istio (Can be disabled)
 - ~~Optionally installs a Cluster Test Application~~ (ToDo)
 
 ## What it does NOT
@@ -22,18 +22,22 @@ It does NOT do management of existing clusters. It's intended to bootstrap the c
 
 **On the machine running the Ansible Playbook**
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+  - [Helm Module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html) requires [Helm](https://helm.sh/docs/intro/install/) to be installed, as well as [PyYAML](https://pypi.org/project/PyYAML/).
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - [k0sctl](https://github.com/k0sproject/k0sctl#installation)
+- Python3
 - An SSH Key for Ansible to connect to its created VM's with
 
 **Other requirements**
 - vSphere/vCenter (Licensed, not just ESXi)
+- Portgroups should run DHCP (ToDo: Allow static IP assignment)
 - An uploaded OVA in a Content Library (focal-server-cloudimg-amd64 tested, modifications may be needed for other distros)
 
 ## Getting started
+- Install required Python modules `pip install -r requirements.txt` or `python3 -m pip install -r requirements.txt`
+- Install required Ansible modules `ansible-galaxy install -r requirements.yml`
 - Fill out the details in [vault.yaml](ansible/vaults/vault.yaml)
 - (Optional, but recommended): Encrypt the vault. `ansible-vault encrypt ansible/vaults/vault.yaml`
-
 | :memo:        | The secrets will be temporarily written in plain-text as part of the Terraform process. This file is deleted when VM's have been created.       |
 |---------------|:------------------------|
 
@@ -55,6 +59,9 @@ It does NOT do management of existing clusters. It's intended to bootstrap the c
 | resource_pool | The resource pool to deploy in | pool01 |
 | metallb.enabled | Whether to deploy MetalLB | true |
 | metallb.addresses | List of IP's that MetalLB should ARP | 172.31.1.245-172.31.1.254 |
+| istio.enabled | Whether to install Istio | true |
+| istio.ingress | Wheter to deploy an ingress gateway | true |
+| istio.injection_namespaces | List of namespaces to enable auto injection in | istio-ingress, default |
 | host.vm_user | The username to connect to VM's with | ubuntu |
 | host.ssh_public_key | A public key that is added to the vm_users authorized_keys file | |
 | host.ssh_private_key_path | The matching private key used for Ansible to connect to the VM's | /path/to/your/private/key/id_rsa |
