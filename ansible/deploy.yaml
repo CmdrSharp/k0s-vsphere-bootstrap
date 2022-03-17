@@ -153,4 +153,4 @@
       shell: k0sctl apply --config ../k0sctl.yaml
 
     - name: "Save kubeconfig file"
-      shell: k0sctl kubeconfig > ../kubeconfig
+      shell: k0sctl kubeconfig --config ../k0sctl.yaml > ../kubeconfig
