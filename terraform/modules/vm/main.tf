@@ -34,7 +34,7 @@ resource "vsphere_virtual_machine" "vsphere-vm" {
 
   vapp {
     properties = merge({
-      hostname = "${var.hostname}${var.count_index}"
+      hostname = "${var.hostname}.${var.domain}"
     }, var.vapp_properties)
   }
 }
