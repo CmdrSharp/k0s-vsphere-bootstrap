@@ -76,10 +76,6 @@
             sans:
             - "{{ terraform_output.outputs.lb_ip_addresses.value[0] }}"
 
-      - name: "Show LB Config"
-        debug:
-          msg: "{{ terraform_output.outputs }}"
-
       - name: "Add LoadBalancer to in-memory hosts"
         add_host:
           hostname: '{{ terraform_output.outputs.lb_ip_addresses.value[0] }}'
@@ -153,4 +149,63 @@
       shell: k0sctl apply --config ../k0sctl.yaml
 
     - name: "Save kubeconfig file"
-      shell: k0sctl kubeconfig --config ../k0sctl.yaml > ../kubeconfig
+      shell: "k0sctl kubeconfig --config ../k0sctl.yaml > ../kubeconfig"
+
+    - block:
+      - name: Add istio helm repo
+        kubernetes.core.helm_repository:
+          name: istio
+          repo_url: "https://istio-release.storage.googleapis.com/charts"
+
+      - name: Create istio-system namespace
+        kubernetes.core.k8s:
+          name: istio-system
+          api_version: v1
+          kind: Namespace
+          state: present
+          kubeconfig: '../kubeconfig'
+
+      - name: Install istio-base helm chart
+        kubernetes.core.helm:
+          name: istio-base
+          chart_ref: istio/base
+          release_namespace: istio-system
+          kubeconfig: '../kubeconfig'
+
+      - name: Install istiod helm chart
+        kubernetes.core.helm:
+          name: istiod
+          chart_ref: istio/istiod
+          release_namespace: istio-system
+          wait: yes
+          kubeconfig: '../kubeconfig'
+
+      - block:
+        - name: Create istio-ingress namespace
+          kubernetes.core.k8s:
+            name: istio-ingress
+            api_version: v1
+            kind: Namespace
+            kubeconfig: '../kubeconfig'
+            state: present
+
+        - name: "Enable istio auto injection in namespaces"
+          kubernetes.core.k8s:
+            state: patched
+            kind: Namespace
+            name: "{{ item }}"
+            kubeconfig: '../kubeconfig'
+            definition:
+              metadata:
+                labels:
+                  istio-injection: enabled
+          with_items: "{{ istio.injection_namespaces }}"
+
+        - name: Install ingress gateway
+          kubernetes.core.helm:
+            name: istio-ingressgateway
+            chart_ref: istio/gateway
+            release_namespace: istio-ingress
+            kubeconfig: '../kubeconfig'
+        when: istio.ingress | bool
+      when: istio.enabled | bool
