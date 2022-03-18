@@ -4,6 +4,8 @@ resource "vsphere_virtual_machine" "vsphere-vm" {
   memory           = var.memory
   datastore_id     = var.datastore_id
   resource_pool_id = var.resource_pool_id
+  enable_disk_uuid = true
+  hardware_version = 19
 
   network_interface {
     network_id = var.network_id
