@@ -67,8 +67,8 @@ It does NOT do management of existing clusters. It's intended to bootstrap the c
 | host.ssh_private_key_path | The matching private key used for Ansible to connect to the VM's | /path/to/your/private/key/id_rsa |
 | controlplane/worker/lb.hostname | Starting hostname (automatically appended by the index of the VM) | cp/worker/lb |
 | controlplane/worker/lb.domain | Host Domain | k0s.local |
-| controlplane/worker/lb.vcpu | Number of vCPU's | 4/4/1 |
-| controlplane/worker/lb.ram | Amount of RAM | 4096/8192/1024 |
+| controlplane/worker/lb.vcpu | Number of vCPU's | 4/4/2 |
+| controlplane/worker/lb.ram | Amount of RAM | 4096/8192/2048 |
 | controlplane/worker/lb.disk_datastore | Which datastore to use for the VM Disk | datastore1 |
-| controlplane/worker/lb.disk_size | Disk Size in GiB | 50 |
-| controlplane/worker/lb.network_name | The port group name in vCenter to use for the VM Network | CP-Network/Worker-Network/LoadBalancer-Network |
+| controlplane/worker/lb.disk_size | Disk Size in GiB | 50/50/15 |
+| controlplane/worker/lb.network_name | The port group name in vCenter to use for the VM Network | CP-Network/Worker-Network/CP-Network |

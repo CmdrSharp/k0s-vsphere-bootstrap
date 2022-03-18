@@ -52,8 +52,8 @@ host:
   lb:
     hostname: lb
     domain: k0s.local
-    vcpu: 1
-    ram: 1024
+    vcpu: 2
+    ram: 2048
     disk_datastore: datastore1
     disk_size: 15
-    network_name: LoadBalancer-Network
+    network_name: CP-Network
