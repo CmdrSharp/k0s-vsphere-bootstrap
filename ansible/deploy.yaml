@@ -86,6 +86,8 @@
           update_cache: yes
           state: present
         become: yes
+        retries: 5
+        delay: 30
         delegate_to: '{{ terraform_output.outputs.lb_ip_addresses.value[0] }}'
 
       - name: "Update HAProxy Configuration"
@@ -93,6 +95,8 @@
           src: haproxy.cfg.j2
           dest: /etc/haproxy/haproxy.cfg
         become: yes
+        retries: 5
+        delay: 30
         delegate_to: '{{ terraform_output.outputs.lb_ip_addresses.value[0] }}'
 
       - name: "Ensure HAProxy is enabled and started"
@@ -101,6 +105,8 @@
           state: restarted
           enabled: yes
         become: yes
+        retries: 5
+        delay: 30
         delegate_to: '{{ terraform_output.outputs.lb_ip_addresses.value[0] }}'
       when: terraform_output.outputs.lb_ip_addresses.value | length > 0
 
