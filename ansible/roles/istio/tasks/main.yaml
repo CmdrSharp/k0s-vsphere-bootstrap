@@ -1,5 +1,9 @@
 ---
 
-- include: certificates.yaml
-
 - include: deploy.yaml
+
+- include: certificates.yaml
+  when: istio.ingress | bool
+
+- include_tasks: gateway.yaml
+  when: istio.ingress | bool
