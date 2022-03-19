@@ -9,9 +9,9 @@
     - vaults/vault.yaml
   remote_user: "{{ host.vm_user }}"
   roles:
-    #- { role: 'terraform', task: 'deploy' }
-    #- { role: 'ha', when: (vm_output.outputs.lb_ip_addresses.value | length > 0) }
-    #- { role: 'k0s' }
+    - { role: 'terraform', task: 'deploy' }
+    - { role: 'ha', when: (vm_output.outputs.lb_ip_addresses.value | length > 0) }
+    - { role: 'k0s' }
     - { role: 'istio', when: (istio.enabled | bool) }
-    #- { role: 'monitoring', when: (monitoring.enabled | bool) }
-    #- { role: 'hello-kate', when: (test_app.enabled | bool) }
+    - { role: 'monitoring', when: (monitoring.enabled | bool) }
+    - { role: 'hello-kate', when: (test_app.enabled | bool) }
