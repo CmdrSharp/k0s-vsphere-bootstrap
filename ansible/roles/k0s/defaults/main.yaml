@@ -1,0 +1,5 @@
+---
+
+host:
+  vm_user: ubuntu
+  ssh_private_key_path: '/path/to/your/private/key/id_rsa'

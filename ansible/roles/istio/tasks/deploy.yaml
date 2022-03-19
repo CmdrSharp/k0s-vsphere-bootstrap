@@ -1,0 +1,68 @@
+- name: Add istio helm repo
+  kubernetes.core.helm_repository:
+    name: istio
+    repo_url: "https://istio-release.storage.googleapis.com/charts"
+
+- name: Create istio-system namespace
+  kubernetes.core.k8s:
+    name: istio-system
+    api_version: v1
+    kind: Namespace
+    state: present
+    kubeconfig: '../generated_configuration/kubeconfig'
+
+- name: Install istio-base helm chart
+  kubernetes.core.helm:
+    name: istio-base
+    chart_ref: istio/base
+    release_namespace: istio-system
+    kubeconfig: '../generated_configuration/kubeconfig'
+
+- name: Install istiod helm chart
+  kubernetes.core.helm:
+    name: istiod
+    chart_ref: istio/istiod
+    release_namespace: istio-system
+    wait: yes
+    kubeconfig: '../generated_configuration/kubeconfig'
+
+- block:
+  - name: Create istio-ingress namespace
+    kubernetes.core.k8s:
+      name: istio-ingress
+      api_version: v1
+      kind: Namespace
+      kubeconfig: '../generated_configuration/kubeconfig'
+      state: present
+
+  - name: Enable istio auto injection in namespaces
+    kubernetes.core.k8s:
+      state: patched
+      kind: Namespace
+      name: "{{ item }}"
+      kubeconfig: '../generated_configuration/kubeconfig'
+      definition:
+        metadata:
+          labels:
+            istio-injection: enabled
+    with_items: "{{ istio.injection_namespaces }}"
+
+  - name: Install ingress gateway
+    kubernetes.core.helm:
+      name: istio-ingressgateway
+      chart_ref: istio/gateway
+      release_namespace: istio-ingress
+      kubeconfig: '../generated_configuration/kubeconfig'
+
+  - name: Generate gateway manifest
+    template:
+      src: gateway.yaml.j2
+      dest: ../generated_configuration/istio-gateway.yaml
+
+  - name: Apply gateway manifest
+    kubernetes.core.k8s:
+      src: ../generated_configuration/istio-gateway.yaml
+      namespace: istio-ingress
+      state: present
+      kubeconfig: '../generated_configuration/kubeconfig'
+  when: istio.ingress | bool

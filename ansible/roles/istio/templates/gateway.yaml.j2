@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: system-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+{% if istio.gateway.insecure %}
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+      - '*'
+{% endif %}
+{% if istio.gateway.secure.enabled %}
+{% for _host in istio.gateway.secure.tls.hosts %}
+    - port:
+        number: 443
+        name: https-{{ _host.host }}
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: tls-certificate-{{ _host.host }}
+      hosts:
+      - {{ _host.host }}
+{% endfor %}
+{% endif %}

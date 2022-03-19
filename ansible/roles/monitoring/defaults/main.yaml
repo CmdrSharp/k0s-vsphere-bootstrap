@@ -1,0 +1,9 @@
+---
+
+istio:
+  enabled: false
+  ingress: false
+
+monitoring:
+  domain: ''
+  basepath: /

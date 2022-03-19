@@ -49,17 +49,17 @@ frontend controllerJoinAPI
 
 backend kubeAPI_backend
     mode tcp
-{% for _address in terraform_output.outputs.controlplane_ip_addresses.value %}
+{% for _address in vm_output.outputs.controlplane_ip_addresses.value %}
     server k0s-controller{{ loop.index }} {{ _address }}:6443 check check-ssl verify none
 {% endfor %}
 backend konnectivity_backend
     mode tcp
-{% for _address in terraform_output.outputs.controlplane_ip_addresses.value %}
+{% for _address in vm_output.outputs.controlplane_ip_addresses.value %}
     server k0s-controller{{ loop.index }} {{ _address }}:8132 check check-ssl verify none
 {% endfor %}
 backend controllerJoinAPI_backend
     mode tcp
-{% for _address in terraform_output.outputs.controlplane_ip_addresses.value %}
+{% for _address in vm_output.outputs.controlplane_ip_addresses.value %}
     server k0s-controller{{ loop.index }} {{ _address }}:9443 check check-ssl verify none
 {% endfor %}
 

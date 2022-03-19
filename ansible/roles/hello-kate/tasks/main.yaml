@@ -1,0 +1,20 @@
+---
+
+- name: Add hello-kate helm repo
+  kubernetes.core.helm_repository:
+    name: hello-kate
+    repo_url: "https://cmdrsharp.github.io/hello-kate"
+
+- name: "Generate hello-kate values"
+  template:
+    src: values.yaml.j2
+    dest: ../generated_configuration/hello-kate_values.yaml
+
+- name: Install hello-kate app
+  kubernetes.core.helm:
+    name: hello-kate
+    chart_ref: hello-kate/hello-kate
+    release_namespace: default
+    values_files:
+      - ../generated_configuration/hello-kate_values.yaml
+    kubeconfig: '../generated_configuration/kubeconfig'

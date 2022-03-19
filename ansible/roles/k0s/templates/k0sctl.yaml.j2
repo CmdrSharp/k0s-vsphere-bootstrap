@@ -15,7 +15,7 @@ spec:
         extensions:
           helm:
             repositories:
-            - name: vsphere-helm
+            - name: vsphere-cpi-csi-helm
               url: https://stefanvangastel.github.io/vsphere-cpi-csi-helm/
 {% if metallb.enabled %}
             - name: bitnami
@@ -23,7 +23,7 @@ spec:
 {% endif %}
             charts:
             - name: vsphere-cpi-csi
-              chartname: vsphere-helm/vsphere-cpi-csi
+              chartname: vsphere-cpi-csi-helm/vsphere-cpi-csi
               version: "2.3.0"
               namespace: kube-system
               values: |

@@ -1,0 +1,52 @@
+---
+
+- name: Create configuration directory
+  file:
+    state: directory
+    path: ../generated_configuration/
+
+- name: Generate tfvars file for Terraform
+  blockinfile:
+    path: ../generated_configuration/input.tfvars
+    create: yes
+    block: |
+      vsphere_server = "{{ vcenter.host }}"
+      vsphere_username = "{{ vcenter.username }}"
+      vsphere_password = "{{ vcenter.password }}"
+      datacenter = "{{ vcenter.datacenter }}"
+      resource_pool = "{{ vcenter.resource_pool }}"
+      cluster = "{{ vcenter.cluster }}"
+      cp_vm_params = {
+        hostname = "{{ host.controlplane.hostname }}"
+        domain = "{{ host.controlplane.domain }}"
+        vcpu = "{{ host.controlplane.vcpu }}"
+        ram = "{{ host.controlplane.ram }}"
+        disk_datastore = "{{ host.controlplane.disk_datastore }}"
+        disk_size = "{{ host.controlplane.disk_size }}"
+        network_name = "{{ host.controlplane.network_name }}"
+      }
+      worker_vm_params = {
+        hostname = "{{ host.worker.hostname }}"
+        domain = "{{ host.worker.domain }}"
+        vcpu = "{{ host.worker.vcpu }}"
+        ram = "{{ host.worker.ram }}"
+        disk_datastore = "{{ host.worker.disk_datastore }}"
+        disk_size = "{{ host.worker.disk_size }}"
+        network_name = "{{ host.worker.network_name }}"
+      }
+      lb_vm_params = {
+        hostname = "{{ host.lb.hostname }}"
+        domain = "{{ host.lb.domain }}"
+        vcpu = "{{ host.lb.vcpu }}"
+        ram = "{{ host.lb.ram }}"
+        disk_datastore = "{{ host.lb.disk_datastore }}"
+        disk_size = "{{ host.lb.disk_size }}"
+        network_name = "{{ host.lb.network_name }}"
+      }
+      template_properties = {
+        "public-keys" = "{{ host.ssh_public_key }}"
+      }
+      cp_vm_count = "{{ kubernetes.controlplane.count }}"
+      worker_vm_count = "{{ kubernetes.worker.count }}"
+  notify:
+  - Delete tfvars file

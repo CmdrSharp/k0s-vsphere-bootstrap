@@ -1,0 +1,6 @@
+---
+
+- name: Delete tfvars file
+  file:
+    path: ../generated_configuration/input.tfvars
+    state: absent

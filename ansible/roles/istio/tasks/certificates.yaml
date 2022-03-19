@@ -1,0 +1,102 @@
+---
+
+- name: Check if any hosts require creating new self-signed certificates
+  set_fact:
+    self_signed_creation: true
+  when: item.create_self_signed_certificate | bool
+  with_items: "{{ istio.gateway.secure.tls.hosts }}"
+
+##################################
+# Create self signed certificates
+##################################
+- block:
+  - name: "[Self-Signed Certificate] - Create certificate directory"
+    file:
+      state: directory
+      path: ../generated_configuration/certificates/
+
+  - name: "[Self-Signed Certificate] - Create private key (RSA, 4096 bits)"
+    community.crypto.openssl_privatekey:
+      path: ../generated_configuration/certificates/private_key.key
+
+  - name: "[Self-Signed Certificate] - Create certificate signing request (CSR) for self-signed certificate"
+    community.crypto.openssl_csr_pipe:
+      privatekey_path: ../generated_configuration/certificates/private_key.key
+      common_name: "{{ item.host }}"
+      organization_name: K0s
+    register: csr
+    when:
+      - item.create_self_signed_certificate is defined
+      - item.create_self_signed_certificate | bool
+    with_items: "{{ istio.gateway.secure.tls.hosts }}"
+
+  - name: "[Self-Signed Certificate] - Create self-signed certificate from CSR"
+    community.crypto.x509_certificate:
+      path: "../generated_configuration/certificates/{{ item.item.host }}.pem"
+      privatekey_path: ../generated_configuration/certificates/private_key.key
+      csr_content: "{{ item.csr }}"
+      provider: selfsigned
+    when: item.csr is defined
+    with_items: "{{ csr.results }}"
+
+  - name: "[Self-Signed Certificate] - Create secrets for the hosts"
+    kubernetes.core.k8s:
+      state: present
+      definition:
+        apiVersion: v1
+        kind: Secret
+        type: tls
+        metadata:
+          name: "tls-certificate-{{ item.host }}"
+          namespace: istio-ingress    
+        data:
+          tls.key: "{{ lookup('file', '../generated_configuration/certificates/private_key.key') | b64encode }}"
+          tls.crt: "{{ lookup('file', '../generated_configuration/certificates/' + item.host + '.pem') | b64encode }}"
+      kubeconfig: '../generated_configuration/kubeconfig'
+    when:
+      - item.create_self_signed_certificate is defined
+      - item.create_self_signed_certificate | bool
+    with_items: "{{ istio.gateway.secure.tls.hosts }}"
+  when: self_signed_creation | bool
+
+##################################
+# Import other certificates
+##################################
+- name: "[Custom Certificates] - Verify that all certificate paths contain a private key"
+  stat:
+    path: "{{ item.certificate_path }}/host.key"
+  register: private_key
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.gateway.secure.tls.hosts }}"
+  failed_when: not private_key.stat.exists
+
+- name: "[Custom Certificates] - Verify that all certificate paths contain a certificate"
+  stat:
+    path: "{{ item.certificate_path }}/host.crt"
+  register: crt
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.gateway.secure.tls.hosts }}"
+  failed_when: not crt.stat.exists
+
+- name: "[Custom Certificates] - Create secrets for the hosts"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: tls
+      metadata:
+        name: "tls-certificate-{{ item.host }}"
+        namespace: istio-ingress    
+      data:
+        tls.key: "{{ lookup('file', item.certificate_path + 'host.key') | b64encode }}"
+        tls.crt: "{{ lookup('file', item.certificate_path + 'host.crt') | b64encode }}"
+    kubeconfig: '../generated_configuration/kubeconfig'
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.gateway.secure.tls.hosts }}"

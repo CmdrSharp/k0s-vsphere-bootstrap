@@ -1,0 +1,9 @@
+---
+
+- include: generate.yaml
+
+- include_tasks: deploy.yaml
+  when: task == 'deploy'
+
+- include_tasks: destroy.yaml
+  when: task == 'destroy'

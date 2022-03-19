@@ -1,0 +1,15 @@
+---
+
+- name: "Delete VM's"
+  community.general.terraform:
+    project_path: "../terraform/"
+    state: absent
+    force_init: yes
+    variables_file:
+      - ../generated_configuration/input.tfvars
+
+
+- name: Delete configuration directory
+  file:
+    state: absent
+    path: ../generated_configuration/

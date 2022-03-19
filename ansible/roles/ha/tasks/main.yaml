@@ -1,0 +1,41 @@
+---
+
+- name: Set facts for Load Balancer (if deployed)
+  set_fact:
+    api:
+      external_address: "{{ vm_output.outputs.lb_ip_addresses.value[0] }}"
+      sans:
+      - "{{ vm_output.outputs.lb_ip_addresses.value[0] }}"
+
+- name: Add LoadBalancer to in-memory hosts
+  add_host:
+    hostname: '{{ vm_output.outputs.lb_ip_addresses.value[0] }}'
+
+- name: Install HAProxy
+  apt:
+    name: haproxy
+    update_cache: yes
+    state: present
+  become: yes
+  retries: 5
+  delay: 30
+  delegate_to: '{{ vm_output.outputs.lb_ip_addresses.value[0] }}'
+
+- name: Update HAProxy Configuration
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  become: yes
+  retries: 5
+  delay: 30
+  delegate_to: '{{ vm_output.outputs.lb_ip_addresses.value[0] }}'
+
+- name: Ensure HAProxy is enabled and started
+  service:
+    name: haproxy
+    state: restarted
+    enabled: yes
+  become: yes
+  retries: 5
+  delay: 30
+  delegate_to: '{{ vm_output.outputs.lb_ip_addresses.value[0] }}'

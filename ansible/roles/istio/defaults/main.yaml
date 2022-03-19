@@ -1,0 +1,16 @@
+---
+
+istio:
+  enabled: false
+  ingress: false
+  secure:
+    enabled: false
+    tls:
+      generate_self_signed: true
+      certificate_paths: {}
+      hosts: {}
+  injection_namespaces:
+    - istio-ingress
+    - default
+
+self_signed_creation: false

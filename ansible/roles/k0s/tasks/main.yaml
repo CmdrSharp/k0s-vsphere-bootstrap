@@ -1,0 +1,48 @@
+---
+
+- name: Generate k0sctl config
+  template:
+    src: k0sctl.yaml.j2
+    dest: ../generated_configuration/k0sctl.yaml
+
+- name: Add Worker information to k0sctl config
+  blockinfile:
+    path: ../generated_configuration/k0sctl.yaml
+    insertafter: "hosts"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+    block: |4
+          - ssh:
+              address: {{ item }}
+              user: {{ host.vm_user }}
+              port: 22
+              keyPath: {{ host.ssh_private_key_path }}
+            installFlags:
+              - --enable-cloud-provider
+              - --kubelet-extra-args
+              - --cloud-provider=external
+            role: worker
+  with_items: "{{ vm_output.outputs.worker_ip_addresses.value }}"
+
+- name: Add ControlPlane information to k0sctl config
+  blockinfile:
+    path: ../generated_configuration/k0sctl.yaml
+    insertafter: "hosts"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+    block: |4
+          - ssh:
+              address: {{ item }}
+              user: {{ host.vm_user }}
+              port: 22
+              keyPath: {{ host.ssh_private_key_path }}
+            installFlags:
+              - --enable-cloud-provider
+              - --kubelet-extra-args
+              - --cloud-provider=external
+            role: controller+worker
+  with_items: "{{ vm_output.outputs.controlplane_ip_addresses.value }}"
+
+- name: "Initiate creation of k0s"
+  shell: k0sctl apply --config ../generated_configuration/k0sctl.yaml
+
+- name: "Save kubeconfig file"
+  shell: "k0sctl kubeconfig --config ../generated_configuration/k0sctl.yaml > ../generated_configuration/kubeconfig"

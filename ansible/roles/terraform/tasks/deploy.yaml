@@ -1,0 +1,14 @@
+---
+
+- name: "Create VM's"
+  community.general.terraform:
+    project_path: "../terraform/"
+    state: present
+    force_init: yes
+    variables_file:
+      - ../generated_configuration/input.tfvars
+  register: terraform_output
+
+- name: "Persist data from VM Creation"
+  set_fact:
+    vm_output: "{{ terraform_output }}"

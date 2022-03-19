@@ -1,0 +1,47 @@
+---
+
+task: deploy
+
+kubernetes:
+  controlplane:
+    count: 3
+  worker:
+    count: 3
+
+vcenter:
+  host: 'vcenter.local'
+  username: 'Administrator@vSphere.local'
+  password: 'changeme'
+  datacenter: ''
+  resource_pool: ''
+  cluster: ''
+
+host:
+  ssh_public_key: ''
+
+  controlplane:
+    hostname: cp
+    domain: k0s.local
+    vcpu: 4
+    ram: 4096
+    disk_datastore: datastore1
+    disk_size: 50
+    network_name: CP-Network
+
+  worker:
+    hostname: worker
+    domain: k0s.local
+    vcpu: 4
+    ram: 8192
+    disk_datastore: datastore1
+    disk_size: 50
+    network_name: Worker-Network
+
+  lb:
+    hostname: lb
+    domain: k0s.local
+    vcpu: 2
+    ram: 2048
+    disk_datastore: datastore1
+    disk_size: 15
+    network_name: CP-Network
