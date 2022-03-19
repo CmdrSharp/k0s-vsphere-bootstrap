@@ -1,4 +1,12 @@
 ---
+
+# ----------------------------------------------------------------------------------------
+# cluster_name - The metadata name of the cluster
+# controlplane
+#   count - Number of control plane hosts to spin up. 3 is a recommended default.
+# worker
+#   count - Number of worker hosts to spin up.
+# ----------------------------------------------------------------------------------------
 kubernetes:
   cluster_name: k0s-cluster01
   controlplane:
@@ -6,6 +14,14 @@ kubernetes:
   worker:
     count: 3
 
+# ----------------------------------------------------------------------------------------
+# host - FQDN or IP to the vCenter Instance
+# username - Username to access vCenter
+# password - Password to vCenter
+# datacenter - The datacenter to deploy in
+# cluster - The cluster to deploy in
+# resource_pool - The pool to use
+# ----------------------------------------------------------------------------------------
 vcenter:
   host: vcenter.local
   username: Administrator@vSphere.local
@@ -14,18 +30,78 @@ vcenter:
   cluster: cluster01
   resource_pool: pool01
 
+# -----------
+# enabled - Whether to deploy MetalLB
+# addresses - A list of address ranges that MetalLB can use for LoadBalancer type services
+# -----------
 metallb:
   enabled: true
   addresses:
   - 172.31.1.245-172.31.1.254
 
+# ----------------------------------------------------------------------------------------
+# enabled - Whether to deploy Istio
+# ingress - Whether to deploy an Ingress Gateway
+# gateway
+#   insecure - Set to true to deploy a Non-TLS Gateway (HTTP, Port 80) that listens to all hosts.
+#   secure
+#     enabled - Set to true to deploy a TLS Gateway
+#     tls
+#       generate_self_signed - Set to true to generate self-signed certificates (one for each host)
+#       hosts - A list of dictionaries containing host and certificate information.
+#                   host - The host/domain name. Required.
+#                   create_self_signed_certificate: Set to true to create a self-signed certificate for this host. Required.
+#                   certificate_path: The full path to a folder containing two files: host.key and host.crt.
+#                                     One set of these files, per folder, per host domain.
+#                                     Required if create_self_signed_certificate is false.
+#
+# injection_namespaces - If namespaces to auto-inject istio in during istio deployment.
+#                        istio-ingress must remain here if deplying an ingress gateway.
+# ----------------------------------------------------------------------------------------
 istio:
   enabled: true
   ingress: true
+  gateway:
+    insecure: true
+    secure:
+      enabled: false
+      tls:
+        hosts:
+          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
+          - { host: domain2.test, create_self_signed_certificate: true }
   injection_namespaces:
   - istio-ingress
   - default
 
+# ----------------------------------------------------------------------------------------
+# enabled - Whether to deploy Prometheus/Grafana
+# domain - The domain the instance will live under (ignored when not using Istio Ingress)
+# basepath - The path to grafana on the URL (ignored when not using Istio Ingress)
+# ----------------------------------------------------------------------------------------
+monitoring:
+  enabled: true
+  domain: monitoring.mycluster.local
+  basepath: /system/grafana
+
+# -----------
+# enabled - Set to true to deploy the hello-kate cluster test application
+# -----------
+test_app:
+  enabled: false
+
+# ----------------------------------------------------------------------------------------
+# vm_user - The user Ansible will connect to on the VM's
+# ssh_public_key - This is what goes into the authorized_keys file (ssh-rsa ....)
+# ssh_private_key_path - The private key Ansible uses to authenticate
+# controlplane/worker/lb
+#   hostname - The start of the hostname (followed by an automatic count, and the domain)
+#   domain - Domain that is appended to the hostname
+#   vcpu - The number of vCPUs
+#   ram - The amount of RAM in MiB
+#   disk_datastore - The datastore to use
+#   disk_size - The size of the disk in GB 
+#   network_name - The name of the port group
+# ----------------------------------------------------------------------------------------
 host:
   vm_user: ubuntu
   ssh_public_key: ""
