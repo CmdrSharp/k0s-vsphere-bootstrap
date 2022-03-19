@@ -53,16 +53,4 @@
       chart_ref: istio/gateway
       release_namespace: istio-ingress
       kubeconfig: '../generated_configuration/kubeconfig'
-
-  - name: Generate gateway manifest
-    template:
-      src: gateway.yaml.j2
-      dest: ../generated_configuration/istio-gateway.yaml
-
-  - name: Apply gateway manifest
-    kubernetes.core.k8s:
-      src: ../generated_configuration/istio-gateway.yaml
-      namespace: istio-ingress
-      state: present
-      kubeconfig: '../generated_configuration/kubeconfig'
   when: istio.ingress | bool
