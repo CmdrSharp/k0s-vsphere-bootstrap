@@ -4,25 +4,57 @@ metadata:
   name: system-gateway
 spec:
   selector:
-    istio: ingressgateway
+    istio: internal-ingress
   servers:
-{% if istio.gateway.insecure %}
+{% if istio.internal_gateway.insecure %}
     - port:
         number: 80
-        name: http
+        name: http-internal
         protocol: HTTP
       hosts:
       - '*'
 {% endif %}
-{% if istio.gateway.secure.enabled %}
-{% for _host in istio.gateway.secure.tls.hosts %}
+{% if istio.internal_gateway.secure.enabled %}
+{% for _host in istio.internal_gateway.secure.tls.hosts %}
     - port:
         number: 443
-        name: https-{{ _host.host }}
+        name: https-internal-{{ _host.host }}
         protocol: HTTPS
       tls:
         mode: SIMPLE
-        credentialName: tls-certificate-{{ _host.host }}
+        credentialName: tls-certificate-internal-{{ _host.host }}
+      hosts:
+      - {{ _host.host }}
+{% endfor %}
+{% endif %}
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: external-gateway
+spec:
+  selector:
+    istio: external-ingress
+  servers:
+{% if istio.external_gateway.insecure %}
+    - port:
+        number: 80
+        name: http-external
+        protocol: HTTP
+      hosts:
+      - '*'
+{% endif %}
+{% if istio.external_gateway.secure.enabled %}
+{% for _host in istio.external_gateway.secure.tls.hosts %}
+    - port:
+        number: 443
+        name: https-external-{{ _host.host }}
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: tls-certificate-external-{{ _host.host }}
       hosts:
       - {{ _host.host }}
 {% endfor %}
