@@ -2,6 +2,7 @@
 
 istio:
   enabled: false
+  chart_version: 1.13.2
   ingress: false
   secure:
     enabled: false
