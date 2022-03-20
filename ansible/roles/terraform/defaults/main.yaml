@@ -2,12 +2,6 @@
 
 task: deploy
 
-kubernetes:
-  controlplane:
-    count: 3
-  worker:
-    count: 3
-
 vcenter:
   host: 'vcenter.local'
   username: 'Administrator@vSphere.local'
@@ -27,6 +21,7 @@ host:
     disk_datastore: datastore1
     disk_size: 50
     network_name: CP-Network
+    count: 3
 
   worker:
     hostname: worker
@@ -36,6 +31,7 @@ host:
     disk_datastore: datastore1
     disk_size: 50
     network_name: Worker-Network
+    count: 3
 
   lb:
     hostname: lb
