@@ -24,7 +24,7 @@ spec:
             charts:
             - name: vsphere-cpi-csi
               chartname: vsphere-cpi-csi-helm/vsphere-cpi-csi
-              version: "2.3.0"
+              version: {{ vsphere_cpi_csi.chart_version }}
               namespace: kube-system
               values: |
                 vcenter:
@@ -64,7 +64,7 @@ spec:
 {% if metallb.enabled %}
             - name: metallb
               chartname: bitnami/metallb
-              version: 2.6.8
+              version: {{ metallb.chart_version }}
               namespace: kube-system
               values: |
                 configInline:
