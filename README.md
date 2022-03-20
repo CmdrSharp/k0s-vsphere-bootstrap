@@ -10,12 +10,11 @@ Items in italic are optional and can thus be disabled via values.
 - Creates and configures a simple HAProxy if multiple ControlPlane servers are specified
 - Templates k0sctl config files
 - Installs
-  - vSphere CPI CSI
-  - *MetalLB*
-  - *Istio*
-  - *Grafana/Prometheus stack*
-  - *Kiali*
-  - *The cluster test application [hello-kate](https://github.com/CmdrSharp/hello-kate)*
+  - [vSphere CPI CSI](ansible/roles/k0s/README.md)
+  - *[MetalLB](ansible/roles/k0s/README.md)*
+  - *[Istio](ansible/roles/istio/README.md)*
+  - *[Grafana/Prometheus/Kiali Monitoring Stack](ansible/roles/monitoring/README.md)*
+  - *The cluster test application [hello-kate](ansible/roles/hello-kate/README.md)*
 
 ## What it does NOT
 
@@ -48,38 +47,5 @@ It does NOT do management of existing clusters. It's intended to bootstrap the c
 - Deploy with `ansible-playbook deploy.yaml --ask-vault-pass`
 - Destroy with `ansible-playbook destroy.yaml --ask-vault-pass`
 
-## TLS Support
-
-With Istio, there is support for deploying with your own certificates, or with self-signed certificates. An example configuration is provided below.
-Simply adding more hosts will create additional bindings on the istio gateway.
-
-```
-istio:
-  enabled: true
-  ingress: true
-  gateway:
-    insecure: true
-    secure:
-      enabled: true
-      tls:
-        hosts:
-          - { host: your-public-domain.com, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
-          - { host: your-private-domain.local, create_self_signed_certificate: true }
-  injection_namespaces:
-  - istio-ingress
-  - default
-```
-
-## Istio Gateway
-
-When deploying with Istio Ingress, two ingress gateways are deployed, along with two default gateways.
-
-### istio-internal-ingress
-This ingress handles access to cluster resources such as Grafana, Prometheus and Kiali. **It should not be exposed to the internet**. There are currently no policies to control traffic hitting it, to allow for easier debugging.
-The gateway **system-gateway** is deployed to this ingress by default, and is where the monitoring virtual services are tied to.
-
-### istio-external-ingress
-This ingress is for applications that should be exposed publicly. The gateway **external-gateway** is deployed by default.
 ## Variables
-
-All variables are documented in [vault.yaml.example](ansible/vaults/vault.yaml.example).
+All variables are documented in the respective role README.md. See [vault.yaml.example](ansible/vaults/vault.yaml.example) for more information.
