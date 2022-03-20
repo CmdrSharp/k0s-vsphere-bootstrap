@@ -32,17 +32,20 @@ vcenter:
 
 # -----------
 # enabled - Whether to deploy MetalLB
+# chart_version - Helm Chart Version to install (default value is tested)
 # addresses - A list of address ranges that MetalLB can use for LoadBalancer type services
 # -----------
 metallb:
   enabled: true
+  chart_version: 2.6.8
   addresses:
   - 172.31.1.245-172.31.1.254
 
 # ----------------------------------------------------------------------------------------
 # enabled - Whether to deploy Istio
+# chart_version - Helm Chart Version to install (default value is tested)
 # ingress - Whether to deploy an Ingress Gateway
-# gateway
+# internal_gateway/external_gateway
 #   insecure - Set to true to deploy a Non-TLS Gateway (HTTP, Port 80) that listens to all hosts.
 #   secure
 #     enabled - Set to true to deploy a TLS Gateway
@@ -60,8 +63,17 @@ metallb:
 # ----------------------------------------------------------------------------------------
 istio:
   enabled: true
+  chart_version: 1.13.2
   ingress: true
-  gateway:
+  internal_gateway:
+    insecure: true
+    secure:
+      enabled: false
+      tls:
+        hosts:
+          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
+          - { host: domain2.test, create_self_signed_certificate: true }
+  external_gateway:
     insecure: true
     secure:
       enabled: false
@@ -74,20 +86,38 @@ istio:
   - default
 
 # ----------------------------------------------------------------------------------------
-# enabled - Whether to deploy Prometheus/Grafana
 # domain - The domain the instance will live under (ignored when not using Istio Ingress)
-# basepath - The path to grafana on the URL (ignored when not using Istio Ingress)
+#          This domain should be uniquely used for the monitoring stack.
+# grafana_prometheus
+#   enabled - Set to true to install Grafana & Prometheus
+#   chart_version - Helm Chart Version to install (default value is tested)
+#   basepath - The path to Grafana on the URL (ignored when not using Istio Ingress)
+# kiali
+#   enabled - Set to true to install Kiali
+#   chart_version - Helm Chart Version to install (default value is tested)
+#   auth
+#     strategy - By default set to anonymous.
+#                For more information, see https://kiali.io/docs/configuration/kialis.kiali.io/
 # ----------------------------------------------------------------------------------------
 monitoring:
-  enabled: true
   domain: monitoring.mycluster.local
-  basepath: /system/grafana
+  grafana_prometheus:
+    enabled: true
+    chart_version: 34.1.1
+    basepath: /system/grafana
+  kiali:
+    enabled: true
+    chart_version: 1.48.0
+    auth:
+      strategy: token
 
 # -----------
 # enabled - Set to true to deploy the hello-kate cluster test application
+# chart_version - Helm Chart Version to install (default value is tested)
 # -----------
 test_app:
   enabled: false
+  chart_version: 1.5.1
 
 # ----------------------------------------------------------------------------------------
 # vm_user - The user Ansible will connect to on the VM's
