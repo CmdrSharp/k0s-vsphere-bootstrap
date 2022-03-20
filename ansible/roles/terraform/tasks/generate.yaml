@@ -46,7 +46,7 @@
       template_properties = {
         "public-keys" = "{{ host.ssh_public_key }}"
       }
-      cp_vm_count = "{{ kubernetes.controlplane.count }}"
-      worker_vm_count = "{{ kubernetes.worker.count }}"
+      cp_vm_count = "{{ host.controlplane.count }}"
+      worker_vm_count = "{{ host.worker.count }}"
   notify:
   - Delete tfvars file
