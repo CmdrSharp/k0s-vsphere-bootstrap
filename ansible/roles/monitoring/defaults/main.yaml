@@ -6,4 +6,12 @@ istio:
 
 monitoring:
   domain: ''
-  basepath: /
+  grafana_prometheus:
+    enabled: true
+    chart_version: 34.1.1
+    basepath: /system/grafana
+  kiali:
+    enabled: true
+    chart_version: 1.48.0
+    auth:
+      strategy: token
