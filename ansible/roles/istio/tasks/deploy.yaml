@@ -47,7 +47,9 @@
         metadata:
           labels:
             istio-injection: enabled
-    with_items: "{{ istio.injection_namespaces }}"
+    with_items:
+      - istio-ingress
+      - default
 
   - name: Install internal ingress gateway
     kubernetes.core.helm:
