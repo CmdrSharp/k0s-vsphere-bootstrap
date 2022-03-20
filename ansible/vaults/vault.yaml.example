@@ -1,40 +1,9 @@
 ---
 
 # ----------------------------------------------------------------------------------------
-# cluster_name - The metadata name of the cluster
-# controlplane
-#   count - Number of control plane hosts to spin up. 3 is a recommended default.
-# worker
-#   count - Number of worker hosts to spin up.
+#                                  METALLB CONFIGURATION
+#         Please see roles/k0s/README.md for documentation on the variables.
 # ----------------------------------------------------------------------------------------
-kubernetes:
-  cluster_name: k0s-cluster01
-  controlplane:
-    count: 3
-  worker:
-    count: 3
-
-# ----------------------------------------------------------------------------------------
-# host - FQDN or IP to the vCenter Instance
-# username - Username to access vCenter
-# password - Password to vCenter
-# datacenter - The datacenter to deploy in
-# cluster - The cluster to deploy in
-# resource_pool - The pool to use
-# ----------------------------------------------------------------------------------------
-vcenter:
-  host: vcenter.local
-  username: Administrator@vSphere.local
-  password: changeme
-  datacenter: dc01
-  cluster: cluster01
-  resource_pool: pool01
-
-# -----------
-# enabled - Whether to deploy MetalLB
-# chart_version - Helm Chart Version to install (default value is tested)
-# addresses - A list of address ranges that MetalLB can use for LoadBalancer type services
-# -----------
 metallb:
   enabled: true
   chart_version: 2.6.8
@@ -42,24 +11,8 @@ metallb:
   - 172.31.1.245-172.31.1.254
 
 # ----------------------------------------------------------------------------------------
-# enabled - Whether to deploy Istio
-# chart_version - Helm Chart Version to install (default value is tested)
-# ingress - Whether to deploy an Ingress Gateway
-# internal_gateway/external_gateway
-#   insecure - Set to true to deploy a Non-TLS Gateway (HTTP, Port 80) that listens to all hosts.
-#   secure
-#     enabled - Set to true to deploy a TLS Gateway
-#     tls
-#       generate_self_signed - Set to true to generate self-signed certificates (one for each host)
-#       hosts - A list of dictionaries containing host and certificate information.
-#                   host - The host/domain name. Required.
-#                   create_self_signed_certificate: Set to true to create a self-signed certificate for this host. Required.
-#                   certificate_path: The full path to a folder containing two files: host.key and host.crt.
-#                                     One set of these files, per folder, per host domain.
-#                                     Required if create_self_signed_certificate is false.
-#
-# injection_namespaces - If namespaces to auto-inject istio in during istio deployment.
-#                        istio-ingress must remain here if deplying an ingress gateway.
+#                                  ISTIO CONFIGURATION
+#         Please see roles/istio/README.md for documentation on the variables.
 # ----------------------------------------------------------------------------------------
 istio:
   enabled: true
@@ -81,23 +34,10 @@ istio:
         hosts:
           - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
           - { host: domain2.test, create_self_signed_certificate: true }
-  injection_namespaces:
-  - istio-ingress
-  - default
 
 # ----------------------------------------------------------------------------------------
-# domain - The domain the instance will live under (ignored when not using Istio Ingress)
-#          This domain should be uniquely used for the monitoring stack.
-# grafana_prometheus
-#   enabled - Set to true to install Grafana & Prometheus
-#   chart_version - Helm Chart Version to install (default value is tested)
-#   basepath - The path to Grafana on the URL (ignored when not using Istio Ingress)
-# kiali
-#   enabled - Set to true to install Kiali
-#   chart_version - Helm Chart Version to install (default value is tested)
-#   auth
-#     strategy - By default set to anonymous.
-#                For more information, see https://kiali.io/docs/configuration/kialis.kiali.io/
+#                              MONITORING CONFIGURATION
+#         Please see roles/monitoring/README.md for documentation on the variables.
 # ----------------------------------------------------------------------------------------
 monitoring:
   domain: monitoring.mycluster.local
@@ -109,29 +49,35 @@ monitoring:
     enabled: true
     chart_version: 1.48.0
     auth:
-      strategy: token
+      strategy: anonymous
 
-# -----------
-# enabled - Set to true to deploy the hello-kate cluster test application
-# chart_version - Helm Chart Version to install (default value is tested)
-# -----------
+# ----------------------------------------------------------------------------------------
+#                              HELLO-KATE CONFIGURATION
+#         Please see roles/hello-kate/README.md for documentation on the variables.
+# ----------------------------------------------------------------------------------------
 test_app:
   enabled: false
   chart_version: 1.5.1
 
 # ----------------------------------------------------------------------------------------
-# vm_user - The user Ansible will connect to on the VM's
-# ssh_public_key - This is what goes into the authorized_keys file (ssh-rsa ....)
-# ssh_private_key_path - The private key Ansible uses to authenticate
-# controlplane/worker/lb
-#   hostname - The start of the hostname (followed by an automatic count, and the domain)
-#   domain - Domain that is appended to the hostname
-#   vcpu - The number of vCPUs
-#   ram - The amount of RAM in MiB
-#   disk_datastore - The datastore to use
-#   disk_size - The size of the disk in GB 
-#   network_name - The name of the port group
+#                              k0s CONFIGURATION
+#         Please see roles/k0s/README.md for documentation on the variables.
 # ----------------------------------------------------------------------------------------
+kubernetes:
+  cluster_name: k0s-cluster01
+
+# ----------------------------------------------------------------------------------------
+#                              TERRAFORM CONFIGURATION
+#         Please see roles/terraform/README.md for documentation on the variables.
+# ----------------------------------------------------------------------------------------
+vcenter:
+  host: vcenter.local
+  username: Administrator@vSphere.local
+  password: changeme
+  datacenter: dc01
+  cluster: cluster01
+  resource_pool: pool01
+
 host:
   vm_user: ubuntu
   ssh_public_key: ""
@@ -145,6 +91,7 @@ host:
     disk_datastore: datastore1
     disk_size: 50
     network_name: CP-Network
+    count: 3
 
   worker:
     hostname: worker
@@ -154,6 +101,7 @@ host:
     disk_datastore: datastore1
     disk_size: 50
     network_name: Worker-Network
+    count: 3
 
   lb:
     hostname: lb
