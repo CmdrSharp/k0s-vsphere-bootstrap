@@ -14,6 +14,7 @@
   kubernetes.core.helm:
     name: hello-kate
     chart_ref: hello-kate/hello-kate
+    chart_version: "{{ test_app.chart_version }}"
     release_namespace: default
     values_files:
       - ../generated_configuration/hello-kate_values.yaml

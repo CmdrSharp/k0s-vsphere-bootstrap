@@ -3,3 +3,7 @@
 istio:
   enabled: false
   ingress: false
+
+test_app:
+  enabled: false
+  chart_version: 1.5.1
