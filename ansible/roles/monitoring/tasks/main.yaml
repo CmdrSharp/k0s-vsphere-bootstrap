@@ -1,55 +1,57 @@
 ---
 
-- name: Add prometheus-community helm repo
-  kubernetes.core.helm_repository:
-    name: prometheus-community
-    repo_url: "https://prometheus-community.github.io/helm-charts"
+- block:
+  - name: Create monitoring namespace
+    kubernetes.core.k8s:
+      name: monitoring
+      api_version: v1
+      kind: Namespace
+      state: present
+      kubeconfig: '../generated_configuration/kubeconfig'
 
-- name: Create monitoring namespace
-  kubernetes.core.k8s:
-    name: monitoring
-    api_version: v1
-    kind: Namespace
-    state: present
-    kubeconfig: '../generated_configuration/kubeconfig'
+  - name: Enable istio auto injection in namespace
+    kubernetes.core.k8s:
+      state: patched
+      kind: Namespace
+      name: monitoring
+      kubeconfig: '../generated_configuration/kubeconfig'
+      definition:
+        metadata:
+          labels:
+            istio-injection: disabled
+    when:
+      - istio.enabled | bool
+      - istio.ingress | bool
 
-- name: Enable istio auto injection in namespace
-  kubernetes.core.k8s:
-    state: patched
-    kind: Namespace
-    name: monitoring
-    kubeconfig: '../generated_configuration/kubeconfig'
-    definition:
-      metadata:
-        labels:
-          istio-injection: enabled
-  when:
-    - istio.enabled | bool
-    - istio.ingress | bool
+  - include_tasks:
+      file: grafana_prometheus.yaml
+      apply:
+        tags:
+          - grafana
+          - prometheus
+    tags:
+      - grafana
+      - prometheus
 
-- name: Generate monitoring values
-  template:
-    src: "{{ item.src }}"
-    dest: "../generated_configuration/{{ item.dst }}"
-  with_items:
-    - { src: values.yaml.j2, dst: monitoring_values.yaml }
-    - { src: virtual_service.yaml.j2, dst: virtual_service.yaml }
+  - include_tasks:
+      file: kiali.yaml
+      apply:
+        tags: kiali
+    when:
+      - monitoring.kiali.enabled | bool
+      - istio.enabled | bool
+      - istio.ingress | bool
+    tags:
+      - kiali
 
-- name: Install kube-prometheus-stack helm chart
-  kubernetes.core.helm:
-    name: kube-prometheus-stack
-    chart_ref: prometheus-community/kube-prometheus-stack
-    release_namespace: monitoring
-    values_files:
-      - ../generated_configuration/monitoring_values.yaml
-    kubeconfig: '../generated_configuration/kubeconfig'
+  - name: Deploy Virtual Services
+    kubernetes.core.k8s:
+      src: ../generated_configuration/monitoring_virtual_service.yaml
+      namespace: monitoring
+      state: present
+      kubeconfig: '../generated_configuration/kubeconfig'
+    when:
+      - istio.enabled | bool
+      - istio.ingress | bool
+  when: monitoring.grafana_prometheus.enabled | bool
 
-- name: Deploy Virtual Services
-  kubernetes.core.k8s:
-    src: ../generated_configuration/virtual_service.yaml
-    namespace: monitoring
-    state: present
-    kubeconfig: '../generated_configuration/kubeconfig'
-  when:
-    - istio.enabled | bool
-    - istio.ingress | bool
