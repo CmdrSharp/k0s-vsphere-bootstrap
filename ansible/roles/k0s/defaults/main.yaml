@@ -3,3 +3,9 @@
 host:
   vm_user: ubuntu
   ssh_private_key_path: '/path/to/your/private/key/id_rsa'
+
+vsphere_cpi_csi:
+  chart_version: 2.3.0
+
+metallb:
+  chart_version: 2.6.8
