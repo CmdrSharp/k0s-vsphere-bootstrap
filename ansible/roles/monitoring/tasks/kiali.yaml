@@ -1,0 +1,22 @@
+---
+
+- name: Add kiali helm repo
+  kubernetes.core.helm_repository:
+    name: kiali
+    repo_url: "https://kiali.org/helm-charts"
+
+- name: Generate monitoring values
+  template:
+    src: kiali/values.yaml.j2
+    dest: "../generated_configuration/kiali_values.yaml"
+
+- name: Install Kiali Operator chart
+  kubernetes.core.helm:
+    name: kiali-operator
+    chart_ref: kiali/kiali-operator
+    chart_version: "{{ monitoring.kiali.chart_version }}"
+    release_namespace: kiali-operator
+    create_namespace: yes
+    values_files:
+      - ../generated_configuration/kiali_values.yaml
+    kubeconfig: '../generated_configuration/kubeconfig'
