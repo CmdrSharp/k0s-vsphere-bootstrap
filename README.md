@@ -14,6 +14,7 @@ Items in italic are optional and can thus be disabled via values.
   - *MetalLB*
   - *Istio*
   - *Grafana/Prometheus stack*
+  - *Kiali*
   - *The cluster test application [hello-kate](https://github.com/CmdrSharp/hello-kate)*
 
 ## What it does NOT
@@ -69,6 +70,16 @@ istio:
   - default
 ```
 
+## Istio Gateway
+
+When deploying with Istio Ingress, two ingress gateways are deployed, along with two default gateways.
+
+### istio-internal-ingress
+This ingress handles access to cluster resources such as Grafana, Prometheus and Kiali. **It should not be exposed to the internet**. There are currently no policies to control traffic hitting it, to allow for easier debugging.
+The gateway **system-gateway** is deployed to this ingress by default, and is where the monitoring virtual services are tied to.
+
+### istio-external-ingress
+This ingress is for applications that should be exposed publicly. The gateway **external-gateway** is deployed by default.
 ## Variables
 
 All variables are documented in [vault.yaml.example](ansible/vaults/vault.yaml.example).
