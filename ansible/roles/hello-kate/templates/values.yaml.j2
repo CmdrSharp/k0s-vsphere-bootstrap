@@ -12,6 +12,7 @@ ingress:
   istio:
     gateway:
       deploy: false
+      ingress_name: external-ingress
     virtualservice:
       deploy: {{ true if (istio.enabled | bool and istio.ingress | bool) else false }}
-      gateway: istio-ingress/system-gateway
+      gateway: istio-ingress/external-gateway
