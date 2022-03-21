@@ -1,0 +1,96 @@
+---
+
+loki:
+  enabled: true
+
+promtail:
+  enabled: true
+
+fluent-bit:
+  enabled: false
+
+grafana:
+  enabled: true
+  adminPassword: admin
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      annotations: {}
+      multicluster:
+        global:
+          enabled: false
+        etcd:
+          enabled: false
+      provider:
+        allowUiUpdates: false
+    datasources:
+      enabled: true
+  image:
+    tag: 8.3.5
+  grafana.ini:
+    server:
+      serve_from_sub_path: true
+      root_url: http://{{ monitoring.domain }}{{ monitoring.loki_grafana.basepath }}
+  service:
+    type: {{ 'ClusterIP' if (istio.enabled and istio.ingress) else 'LoadBalancer' }}
+  env:
+    GF_AUTH_ANONYMOUS_ENABLED: "true"
+    GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+
+
+prometheus:
+  enabled: true
+  kubeStateMetrics:
+    enabled: true
+    namespaceOverride: ""
+    rbac:
+      create: true
+    releaseLabel: true
+    prometheus:
+      monitor:
+        enabled: true
+        interval: ""
+        scrapeTimeout: ""
+        proxyUrl: ""
+        honorLabels: true
+        metricRelabelings: []
+        relabelings: []
+    selfMonitor: false
+  alertmanager:
+    persistentVolume:
+      enabled: false
+  server:
+    persistentVolume:
+      enabled: false
+  extraScrapeConfigs: |
+{% if istio.enabled and istio.ingress %}
+    - job_name: 'istiod'
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - istio-system
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istiod;http-monitoring
+{% endif %}
+    - job_name: 'envoy-stats'
+      metrics_path: /stats/prometheus
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        action: keep
+        regex: '.*-envoy-prom'
+    - job_name: 'kube-state-metrics'
+      honor_timestamps: true
+      metrics_path: /metrics
+      scheme: http
+      static_configs:
+        - targets: ['loki-kube-state-metrics.monitoring.svc.cluster.local:8080']
+      metric_relabel_configs:
+      - target_label: cluster
+        replacement: Kubernetes01

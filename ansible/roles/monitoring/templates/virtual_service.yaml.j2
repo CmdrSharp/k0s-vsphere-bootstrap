@@ -12,12 +12,12 @@ spec:
   http:
   - match:
     - uri:
-        prefix: {{ monitoring.grafana_prometheus.basepath }}
+        prefix: {{ monitoring.loki_grafana.basepath }}
     route:
     - destination:
         port:
           number: 80
-        host: kube-prometheus-stack-grafana
+        host: loki-grafana
 {% if monitoring.kiali.enabled %}
   - match:
     - uri:

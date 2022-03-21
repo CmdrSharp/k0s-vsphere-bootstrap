@@ -24,14 +24,14 @@
       - istio.ingress | bool
 
   - include_tasks:
-      file: grafana_prometheus.yaml
+      file: loki_grafana.yaml
       apply:
         tags:
+          - loki
           - grafana
-          - prometheus
     tags:
+      - loki
       - grafana
-      - prometheus
 
   - include_tasks:
       file: kiali.yaml
@@ -53,5 +53,5 @@
     when:
       - istio.enabled | bool
       - istio.ingress | bool
-  when: monitoring.grafana_prometheus.enabled | bool
+  when: monitoring.loki_grafana.enabled | bool
 

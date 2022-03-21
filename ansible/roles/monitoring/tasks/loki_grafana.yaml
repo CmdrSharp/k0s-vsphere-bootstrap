@@ -1,39 +1,43 @@
 ---
 
-- name: Add prometheus-community helm repo
+- name: Add Grafana helm repo
   kubernetes.core.helm_repository:
-    name: prometheus-community
-    repo_url: "https://prometheus-community.github.io/helm-charts"
+    name: grafana
+    repo_url: "https://grafana.github.io/helm-charts"
 
 - name: Generate monitoring values
   template:
     src: "{{ item.src }}"
     dest: "../generated_configuration/{{ item.dst }}"
   with_items:
-    - { src: grafana_prometheus/values.yaml.j2, dst: grafana_prometheus_values.yaml }
+    - { src: loki-grafana/values.yaml.j2, dst: loki_grafana_values.yaml }
     - { src: virtual_service.yaml.j2, dst: monitoring_virtual_service.yaml }
 
-- name: Install kube-prometheus-stack helm chart
+- name: Install loki-stack helm chart
   kubernetes.core.helm:
-    name: kube-prometheus-stack
-    chart_ref: prometheus-community/kube-prometheus-stack
-    chart_version: "{{ monitoring.grafana_prometheus.chart_version }}"
+    name: loki
+    chart_ref: grafana/loki-stack
+    chart_version: "{{ monitoring.loki_grafana.chart_version }}"
     release_namespace: monitoring
     values_files:
-      - ../generated_configuration/grafana_prometheus_values.yaml
+      - ../generated_configuration/loki_grafana_values.yaml
     kubeconfig: '../generated_configuration/kubeconfig'
 
 - name: Inventory dashboard files
   find:
-    paths: roles/monitoring/templates/grafana_prometheus/dashboards
+    paths: roles/monitoring/templates/loki-grafana/dashboards
     patterns: "*.yaml.j2"
   register: dashboard_json_files
+  tags:
+    - dashboards
 
 - name: Template Dashboard Configuration
   template:
     src: "{{ item.path }}"
     dest: "../generated_configuration/dashboard-{{ item.path | basename | replace('.j2', '') }}"
   with_items: "{{ dashboard_json_files.files }}"
+  tags:
+    - dashboards
 
 - name: Deploy Dashboard ConfigMaps
   kubernetes.core.k8s:
@@ -42,4 +46,6 @@
     state: present
     kubeconfig: '../generated_configuration/kubeconfig'
   with_items: "{{ dashboard_json_files.files }}"
+  tags:
+    - dashboards
   when: istio.enabled | bool

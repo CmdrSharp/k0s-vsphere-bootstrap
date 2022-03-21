@@ -18,10 +18,10 @@ cr:
         auth:
           type: none
           insecure_skip_verify: true
-        in_cluster_url: 'http://kube-prometheus-stack-grafana.monitoring'
-        url: 'http://kube-prometheus-stack-grafana.monitoring'
+        in_cluster_url: 'http://loki-grafana.monitoring'
+        url: "{{ 'https' if (istio.ingress and istio.internal_gateway.secure.enabled) else 'http' }}://{{ monitoring.domain }}"
       prometheus:
-        url: 'http://kube-prometheus-stack-prometheus.monitoring:9090'
+        url: 'http://loki-prometheus-server.monitoring'
       istio:
         component_status:
           components:

@@ -41,9 +41,9 @@ istio:
 # ----------------------------------------------------------------------------------------
 monitoring:
   domain: monitoring.mycluster.local
-  grafana_prometheus:
+  loki_grafana:
     enabled: true
-    chart_version: 34.1.1
+    chart_version: 2.6.1
     basepath: /system/grafana
   kiali:
     enabled: true
