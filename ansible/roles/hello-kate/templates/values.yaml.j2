@@ -5,7 +5,7 @@ service:
 
 mongodb:
   persistence:
-    storageClass: vsphere-csi
+    storageClass: {{ test_app.pvc.storage_class }}
 
 ingress:
   enabled: {{ true if (istio.enabled | bool and istio.ingress | bool) else false }}

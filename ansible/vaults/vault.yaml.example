@@ -57,7 +57,9 @@ monitoring:
 # ----------------------------------------------------------------------------------------
 test_app:
   enabled: false
-  chart_version: 1.5.1
+  chart_version: 1.5.2
+  pvc:
+    storage_class: vsphere-csi
 
 # ----------------------------------------------------------------------------------------
 #                              k0s CONFIGURATION
@@ -65,6 +67,9 @@ test_app:
 # ----------------------------------------------------------------------------------------
 kubernetes:
   cluster_name: k0s-cluster01
+  vsphere_cpi_csi:
+    enabled: true
+    chart_version: 2.3.0
 
 # ----------------------------------------------------------------------------------------
 #                              TERRAFORM CONFIGURATION

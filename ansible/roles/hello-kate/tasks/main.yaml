@@ -1,21 +1,23 @@
 ---
 
-- name: Add hello-kate helm repo
-  kubernetes.core.helm_repository:
-    name: hello-kate
-    repo_url: "https://cmdrsharp.github.io/hello-kate"
+- block:
+  - name: Add hello-kate helm repo
+    kubernetes.core.helm_repository:
+      name: hello-kate
+      repo_url: "https://cmdrsharp.github.io/hello-kate"
 
-- name: "Generate hello-kate values"
-  template:
-    src: values.yaml.j2
-    dest: ../generated_configuration/hello-kate_values.yaml
+  - name: "Generate hello-kate values"
+    template:
+      src: values.yaml.j2
+      dest: ../generated_configuration/hello-kate_values.yaml
 
-- name: Install hello-kate app
-  kubernetes.core.helm:
-    name: hello-kate
-    chart_ref: hello-kate/hello-kate
-    chart_version: "{{ test_app.chart_version }}"
-    release_namespace: default
-    values_files:
-      - ../generated_configuration/hello-kate_values.yaml
-    kubeconfig: '../generated_configuration/kubeconfig'
+  - name: Install hello-kate app
+    kubernetes.core.helm:
+      name: hello-kate
+      chart_ref: hello-kate/hello-kate
+      chart_version: "{{ test_app.chart_version }}"
+      release_namespace: default
+      values_files:
+        - ../generated_configuration/hello-kate_values.yaml
+      kubeconfig: '../generated_configuration/kubeconfig'
+  when: kubernetes.vsphere_cpi_csi.enabled | bool

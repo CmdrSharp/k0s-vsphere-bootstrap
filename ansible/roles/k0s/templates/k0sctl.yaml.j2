@@ -15,16 +15,19 @@ spec:
         extensions:
           helm:
             repositories:
+{% if kubernetes.vsphere_cpi_csi.enabled %}
             - name: vsphere-cpi-csi-helm
               url: https://stefanvangastel.github.io/vsphere-cpi-csi-helm/
+{% endif %}
 {% if metallb.enabled %}
             - name: bitnami
               url: https://charts.bitnami.com/bitnami
 {% endif %}
             charts:
+{% if kubernetes.vsphere_cpi_csi.enabled %}
             - name: vsphere-cpi-csi
               chartname: vsphere-cpi-csi-helm/vsphere-cpi-csi
-              version: {{ vsphere_cpi_csi.chart_version }}
+              version: {{ kubernetes.vsphere_cpi_csi.chart_version }}
               namespace: kube-system
               values: |
                 vcenter:
@@ -61,6 +64,7 @@ spec:
                       effect: NoExecute
                     - key: node-role.kubernetes.io/master
                       operator: Exists
+{% endif %}
 {% if metallb.enabled %}
             - name: metallb
               chartname: bitnami/metallb

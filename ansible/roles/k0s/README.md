@@ -5,6 +5,9 @@ This role installs k0s via k0sctl, and templates installation of MetalLB (if con
 # k0s / Kubernetes Variables
 - `kubernetes`
   * `cluster_name` The metadata name for the cluster
+  * `vsphere_cpi_csi`
+    * `enabled` Set to false to disable deploying the vSphere Storage Interface and Cloud Provider
+    * `chart_version` The version of the Helm Chart to install.
 
 ## MetalLB
 - `metallb`

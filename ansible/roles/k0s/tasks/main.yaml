@@ -5,41 +5,75 @@
     src: k0sctl.yaml.j2
     dest: ../generated_configuration/k0sctl.yaml
 
-- name: Add Worker information to k0sctl config
-  blockinfile:
-    path: ../generated_configuration/k0sctl.yaml
-    insertafter: "hosts"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
-    block: |4
-          - ssh:
-              address: {{ item }}
-              user: {{ host.vm_user }}
-              port: 22
-              keyPath: {{ host.ssh_private_key_path }}
-            installFlags:
-              - --enable-cloud-provider
-              - --kubelet-extra-args
-              - --cloud-provider=external
-            role: worker
-  with_items: "{{ vm_output.outputs.worker_ip_addresses.value }}"
+# Cloud-provider installs
+- block:
+  - name: Add Worker information to k0sctl config (CloudProvider)
+    blockinfile:
+      path: ../generated_configuration/k0sctl.yaml
+      insertafter: "hosts"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+      block: |4
+            - ssh:
+                address: {{ item }}
+                user: {{ host.vm_user }}
+                port: 22
+                keyPath: {{ host.ssh_private_key_path }}
+              installFlags:
+                - --enable-cloud-provider
+                - --kubelet-extra-args
+                - --cloud-provider=external
+              role: worker
+    with_items: "{{ vm_output.outputs.worker_ip_addresses.value }}"
 
-- name: Add ControlPlane information to k0sctl config
-  blockinfile:
-    path: ../generated_configuration/k0sctl.yaml
-    insertafter: "hosts"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
-    block: |4
-          - ssh:
-              address: {{ item }}
-              user: {{ host.vm_user }}
-              port: 22
-              keyPath: {{ host.ssh_private_key_path }}
-            installFlags:
-              - --enable-cloud-provider
-              - --kubelet-extra-args
-              - --cloud-provider=external
-            role: controller+worker
-  with_items: "{{ vm_output.outputs.controlplane_ip_addresses.value }}"
+  - name: Add ControlPlane information to k0sctl config (CloudProvider)
+    blockinfile:
+      path: ../generated_configuration/k0sctl.yaml
+      insertafter: "hosts"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+      block: |4
+            - ssh:
+                address: {{ item }}
+                user: {{ host.vm_user }}
+                port: 22
+                keyPath: {{ host.ssh_private_key_path }}
+              installFlags:
+                - --enable-cloud-provider
+                - --kubelet-extra-args
+                - --cloud-provider=external
+              role: controller+worker
+    with_items: "{{ vm_output.outputs.controlplane_ip_addresses.value }}"
+  when: kubernetes.vsphere_cpi_csi.enabled | bool
+
+# For non cloud-provider installs
+- block:
+  - name: Add Worker information to k0sctl config
+    blockinfile:
+      path: ../generated_configuration/k0sctl.yaml
+      insertafter: "hosts"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+      block: |4
+            - ssh:
+                address: {{ item }}
+                user: {{ host.vm_user }}
+                port: 22
+                keyPath: {{ host.ssh_private_key_path }}
+              role: worker
+    with_items: "{{ vm_output.outputs.worker_ip_addresses.value }}"
+
+  - name: Add ControlPlane information to k0sctl config
+    blockinfile:
+      path: ../generated_configuration/k0sctl.yaml
+      insertafter: "hosts"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ item }}"
+      block: |4
+            - ssh:
+                address: {{ item }}
+                user: {{ host.vm_user }}
+                port: 22
+                keyPath: {{ host.ssh_private_key_path }}
+              role: controller+worker
+    with_items: "{{ vm_output.outputs.controlplane_ip_addresses.value }}"
+  when: not kubernetes.vsphere_cpi_csi.enabled | bool
 
 - name: "Initiate creation of k0s"
   shell: k0sctl apply --config ../generated_configuration/k0sctl.yaml

@@ -76,7 +76,6 @@ prometheus:
       - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
         action: keep
         regex: istiod;http-monitoring
-{% endif %}
     - job_name: 'envoy-stats'
       metrics_path: /stats/prometheus
       kubernetes_sd_configs:
@@ -85,6 +84,7 @@ prometheus:
       - source_labels: [__meta_kubernetes_pod_container_port_name]
         action: keep
         regex: '.*-envoy-prom'
+{% endif %}
     - job_name: 'kube-state-metrics'
       honor_timestamps: true
       metrics_path: /metrics
