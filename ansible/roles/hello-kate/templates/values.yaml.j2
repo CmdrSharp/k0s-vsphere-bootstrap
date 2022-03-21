@@ -3,6 +3,10 @@
 service:
   type: {{ 'ClusterIP' if (istio.enabled | bool and istio.ingress | bool) else 'LoadBalancer' }}
 
+monitoring:
+  grafana_dashboard: true
+  namespace: monitoring
+
 mongodb:
   persistence:
     storageClass: {{ test_app.pvc.storage_class }}
