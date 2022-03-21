@@ -10,7 +10,7 @@ Items in italic are optional and can thus be disabled via values.
 - Creates and configures a simple HAProxy if multiple ControlPlane servers are specified
 - Templates k0sctl config files
 - Installs
-  - [vSphere CPI CSI](ansible/roles/k0s/README.md)
+  - *[vSphere CPI CSI](ansible/roles/k0s/README.md)*
   - *[MetalLB](ansible/roles/k0s/README.md)*
   - *[Istio](ansible/roles/istio/README.md)*
   - *[Grafana/Prometheus/Kiali Monitoring Stack](ansible/roles/monitoring/README.md)*
