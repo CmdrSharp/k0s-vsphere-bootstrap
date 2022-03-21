@@ -18,7 +18,7 @@
       definition:
         metadata:
           labels:
-            istio-injection: disabled
+            istio-injection: enabled
     when:
       - istio.enabled | bool
       - istio.ingress | bool
