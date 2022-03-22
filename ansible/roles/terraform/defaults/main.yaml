@@ -9,8 +9,10 @@ vcenter:
   datacenter: ''
   resource_pool: ''
   cluster: ''
+  content_library: Templates
 
 host:
+  template_name: focal-server-cloudimg-amd64
   ssh_public_key: ''
 
   controlplane:

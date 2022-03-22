@@ -5,6 +5,8 @@ vsphere_password = "changeme"
 datacenter    = "dc01"
 resource_pool = "pool01"
 cluster       = "cluster01"
+content_library = "templates"
+template_name   = "focal-server-cloudimg-amd64"
 
 cp_vm_params = {
   hostname       = "cp"

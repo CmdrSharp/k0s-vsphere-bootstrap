@@ -82,8 +82,10 @@ vcenter:
   datacenter: dc01
   cluster: cluster01
   resource_pool: pool01
+  content_library: Templates
 
 host:
+  template_name: focal-server-cloudimg-amd64
   vm_user: ubuntu
   ssh_public_key: ""
   ssh_private_key_path: '/path/to/your/private/key/id_rsa'
