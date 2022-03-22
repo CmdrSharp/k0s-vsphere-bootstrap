@@ -14,9 +14,15 @@ mongodb:
 ingress:
   enabled: {{ true if (istio.enabled | bool and istio.ingress | bool) else false }}
   istio:
-    gateway:
-      deploy: false
-      ingress_name: external-ingress
     virtualservice:
       deploy: {{ true if (istio.enabled | bool and istio.ingress | bool) else false }}
       gateway: istio-ingress/external-gateway
+      hosts:
+{% for _host in istio.external_gateway.secure.tls.hosts %}
+{% if _host.host not in istio.external_gateway.insecure.hosts %}
+      - {{ _host.host }}
+{% endif %}
+{% endfor %}
+{% for _host in istio.external_gateway.insecure.hosts %}
+      - {{ _host }}
+{% endfor %}
