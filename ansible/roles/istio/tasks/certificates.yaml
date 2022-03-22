@@ -116,9 +116,9 @@
       - item.create_self_signed_certificate is defined
       - item.create_self_signed_certificate | bool
     with_items: "{{ istio.external_gateway.secure.tls.hosts }}"
-  when:
-    - item.create_self_signed_certificate is defined
-    - external_self_signed_creation | bool
+when:
+  - item.create_self_signed_certificate is defined
+  - external_self_signed_creation | bool
 
 ##################################
 # Import other certificates
