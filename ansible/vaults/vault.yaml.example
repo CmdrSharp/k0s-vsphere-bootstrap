@@ -70,6 +70,10 @@ kubernetes:
   vsphere_cpi_csi:
     enabled: true
     chart_version: 2.3.0
+  calico:
+    podCIDR: 10.244.0.0/16
+    serviceCIDR: 10.96.0.0/12
+    ipAutodetectionMethod: "can-reach=8.8.8.8"
 
 # ----------------------------------------------------------------------------------------
 #                              TERRAFORM CONFIGURATION

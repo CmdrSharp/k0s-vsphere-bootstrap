@@ -138,10 +138,10 @@ spec:
           calico:
             mode: vxlan
             overlay: Always
-            ipAutodetectionMethod: "can-reach=8.8.8.8"
-          podCIDR: 10.244.0.0/16
+            ipAutodetectionMethod: "{{ kubernetes.calico.ipAutodetectionMethod }}"
+          podCIDR: {{ kubernetes.calico.podCIDR }}
           provider: calico
-          serviceCIDR: 10.96.0.0/12
+          serviceCIDR: {{ kubernetes.calico.serviceCIDR }}
         podSecurityPolicy:
           defaultPolicy: 00-k0s-privileged
         storage:

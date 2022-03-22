@@ -1,5 +1,14 @@
 ---
 
+kubernetes:
+  cluster_name: k0s-cluster01
+  vsphere_cpi_csi:
+    enabled: true
+    chart_version: 2.3.0
+  calico:
+    podCIDR: 10.244.0.0/16
+    serviceCIDR: 10.96.0.0/12
+
 host:
   vm_user: ubuntu
   ssh_private_key_path: '/path/to/your/private/key/id_rsa'

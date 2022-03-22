@@ -8,6 +8,10 @@ This role installs k0s via k0sctl, and templates installation of MetalLB (if con
   * `vsphere_cpi_csi`
     * `enabled` Set to false to disable deploying the vSphere Storage Interface and Cloud Provider
     * `chart_version` The version of the Helm Chart to install.
+  * `calico`
+    * `podCIDR` The Pod CIDR Calico will use
+    * `serviceCIDR` The service CIDR Calico will use
+    * `ipAutodetectionMethod` The way for Calico to identify the correct NIC
 
 ## MetalLB
 - `metallb`
