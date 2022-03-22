@@ -6,6 +6,6 @@ istio:
 
 test_app:
   enabled: false
-  chart_version: 1.6.0
+  chart_version: 1.7.0
   pvc:
     storage_class: vsphere-csi
