@@ -1,17 +1,31 @@
 ---
 
 istio:
-  enabled: false
+  enabled: true
   chart_version: 1.13.2
-  ingress: false
-  secure:
-    enabled: false
-    tls:
-      generate_self_signed: true
-      certificate_paths: {}
-      hosts: {}
-  injection_namespaces:
-    - istio-ingress
-    - default
+  ingress: true
+  internal_gateway:
+    insecure:
+      enabled: true
+      hosts:
+        - example-domain.local
+    secure:
+      enabled: false
+      tls:
+        hosts:
+          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
+          - { host: domain2.test, create_self_signed_certificate: true }
+  external_gateway:
+    insecure:
+      enabled: true
+      hosts:
+        - example-domain.local
+    secure:
+      enabled: false
+      tls:
+        hosts:
+          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
+          - { host: domain2.test, create_self_signed_certificate: true }
 
-self_signed_creation: false
+internal_self_signed_creation: false
+external_self_signed_creation: false

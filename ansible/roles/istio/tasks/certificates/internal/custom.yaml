@@ -1,0 +1,40 @@
+---
+
+- name: "[Custom Certificates] - Verify that all internal certificate paths contain a private key"
+  stat:
+    path: "{{ item.certificate_path }}/host.key"
+  register: private_key
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"
+  failed_when: not private_key.stat.exists
+
+- name: "[Custom Certificates] - Verify that all internal certificate paths contain a certificate"
+  stat:
+    path: "{{ item.certificate_path }}/host.crt"
+  register: crt
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"
+  failed_when: not crt.stat.exists
+
+- name: "[Custom Certificates] - Create internal secrets for the hosts"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: tls
+      metadata:
+        name: "tls-certificate-internal-{{ item.host }}"
+        namespace: istio-ingress    
+      data:
+        tls.key: "{{ lookup('file', item.certificate_path + 'host.key') | b64encode }}"
+        tls.crt: "{{ lookup('file', item.certificate_path + 'host.crt') | b64encode }}"
+    kubeconfig: '../generated_configuration/kubeconfig'
+  when:
+    - item.create_self_signed_certificate is defined
+    - not item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"

@@ -2,8 +2,11 @@
 
 - include: deploy.yaml
 
-- include: certificates.yaml
-  when: istio.ingress | bool
+- include_tasks: certificates/main.yaml
+  when: >
+    istio.ingress | bool and 
+    (istio.internal_gateway.secure.enabled | bool or 
+    istio.external_gateway.secure.enabled | bool)
 
 - include_tasks: gateway.yaml
   when: istio.ingress | bool

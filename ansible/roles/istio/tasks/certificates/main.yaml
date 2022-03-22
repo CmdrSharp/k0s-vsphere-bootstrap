@@ -1,0 +1,43 @@
+---
+
+- name: Check if any internal hosts require creating new self-signed certificates
+  set_fact:
+    internal_self_signed_creation: true
+  when: item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"
+
+- name: Check if any external hosts require creating new self-signed certificates
+  set_fact:
+    external_self_signed_creation: true
+  when: item.create_self_signed_certificate | bool
+  with_items: "{{ istio.external_gateway.secure.tls.hosts }}"
+
+- block:
+  - name: "[Self-Signed Certificate] - Create certificate directory"
+    file:
+      state: directory
+      path: "{{ item }}"
+    with_items:
+      - ../generated_configuration/certificates/
+      - ../generated_configuration/certificates/internal/
+      - ../generated_configuration/certificates/external/
+
+  - name: "[Self-Signed Certificate] - Create private keys (RSA, 4096 bits)"
+    community.crypto.openssl_privatekey:
+      path: "{{ item }}"
+    with_items:
+      - ../generated_configuration/certificates/internal_private_key.key
+      - ../generated_configuration/certificates/external_private_key.key
+  when: >
+    internal_self_signed_creation | bool or 
+    external_self_signed_creation | bool
+
+- include_tasks: internal/self_signed.yaml
+  when: internal_self_signed_creation | bool
+
+- include_tasks: internal/custom.yaml
+
+- include_tasks: external/self_signed.yaml
+  when: external_self_signed_creation | bool
+
+- include_tasks: external/custom.yaml

@@ -19,21 +19,25 @@ istio:
   chart_version: 1.13.2
   ingress: true
   internal_gateway:
-    insecure: true
+    insecure:
+      enabled: true
+      hosts:
+        - example-domain.local
     secure:
       enabled: false
       tls:
-        hosts:
-          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
-          - { host: domain2.test, create_self_signed_certificate: true }
+        hosts: {}
   external_gateway:
-    insecure: true
+    insecure:
+      enabled: true
+      hosts:
+        - your-public-domain.com
     secure:
       enabled: false
       tls:
         hosts:
-          - { host: domain1.local, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
-          - { host: domain2.test, create_self_signed_certificate: true }
+          - { host: your-public-domain.com, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
+          - { host: your-public-domain.dev, create_self_signed_certificate: true }
 
 # ----------------------------------------------------------------------------------------
 #                              MONITORING CONFIGURATION

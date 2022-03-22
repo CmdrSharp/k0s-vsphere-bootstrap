@@ -6,13 +6,15 @@ spec:
   selector:
     istio: internal-ingress
   servers:
-{% if istio.internal_gateway.insecure %}
+{% if istio.internal_gateway.insecure.enabled %}
     - port:
         number: 80
         name: http-internal
         protocol: HTTP
       hosts:
-      - '*'
+{% for _host in istio.internal_gateway.insecure.hosts %}
+      - {{ _host }}
+{% endfor %}
 {% endif %}
 {% if istio.internal_gateway.secure.enabled %}
 {% for _host in istio.internal_gateway.secure.tls.hosts %}
@@ -38,13 +40,15 @@ spec:
   selector:
     istio: external-ingress
   servers:
-{% if istio.external_gateway.insecure %}
+{% if istio.external_gateway.insecure.enabled %}
     - port:
         number: 80
         name: http-external
         protocol: HTTP
       hosts:
-      - '*'
+{% for _host in istio.external_gateway.insecure.hosts %}
+      - {{ _host }}
+{% endfor %}
 {% endif %}
 {% if istio.external_gateway.secure.enabled %}
 {% for _host in istio.external_gateway.secure.tls.hosts %}

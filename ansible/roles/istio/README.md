@@ -22,22 +22,25 @@ istio:
   chart_version: 1.13.2
   ingress: true
   internal_gateway:
-    insecure: true
+    insecure:
+      enabled: true
+      hosts:
+        - example-domain.local
     secure:
       enabled: false
       tls:
         hosts: {}
   external_gateway:
-    insecure: true
+    insecure:
+      enabled: true
+      hosts:
+        - your-public-domain.com
     secure:
       enabled: true
       tls:
         hosts:
           - { host: your-public-domain.com, create_self_signed_certificate: false, certificate_path: /path/to/domain1-folder/ }
           - { host: your-public-domain.dev, create_self_signed_certificate: true }
-  injection_namespaces:
-  - istio-ingress
-  - default
 ```
 
 ## Variables
@@ -46,7 +49,9 @@ istio:
 - `chart_version` The version of the Helm Chart to install.
 - `ingress` Whether to deploy the Istio Ingresses
 - `internal_gateway`
-  * `insecure` Set to true to enable a catchall * host at port 80
+  * `insecure`
+    * `enabled` Set to true to enable HTTP (Port 80)
+    * `hosts` A flat list of hosts for the gateway to listen to.
   * `secure`
     * `enabled` Set to true to enable host-specific gateways at port 443
     * `tls`

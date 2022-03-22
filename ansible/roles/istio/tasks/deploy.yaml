@@ -18,6 +18,8 @@
     chart_version: "{{ istio.chart_version }}"
     release_namespace: istio-system
     kubeconfig: '../generated_configuration/kubeconfig'
+  retries: 3
+  delay: 15
 
 - name: Install istiod helm chart
   kubernetes.core.helm:
@@ -27,6 +29,8 @@
     release_namespace: istio-system
     wait: yes
     kubeconfig: '../generated_configuration/kubeconfig'
+  retries: 3
+  delay: 15
 
 - block:
   - name: Create istio-ingress namespace
@@ -58,6 +62,8 @@
       chart_version: "{{ istio.chart_version }}"
       release_namespace: istio-ingress
       kubeconfig: '../generated_configuration/kubeconfig'
+    retries: 3
+    delay: 15
 
   - name: Install external ingress gateway
     kubernetes.core.helm:
@@ -66,4 +72,11 @@
       chart_version: "{{ istio.chart_version }}"
       release_namespace: istio-ingress
       kubeconfig: '../generated_configuration/kubeconfig'
+    retries: 3
+    delay: 15
+    when: >
+      istio.internal_gateway.insecure.enabled | bool or 
+      istio.internal_gateway.secure.enabled | bool or 
+      istio.external_gateway.insecure.enabled | bool or 
+      istio.external_gateway.secure.enabled | bool
   when: istio.ingress | bool

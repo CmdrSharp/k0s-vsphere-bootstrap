@@ -1,0 +1,40 @@
+---
+
+- name: "[Self-Signed Certificate] - Create certificate signing request (CSR) for internal self-signed certificate"
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: ../generated_configuration/certificates/internal_private_key.key
+    common_name: "{{ item.host }}"
+    organization_name: K0s
+  register: internal_csr
+  when:
+    - item.create_self_signed_certificate is defined
+    - item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"
+
+- name: "[Self-Signed Certificate] - Create internal self-signed certificate from CSR"
+  community.crypto.x509_certificate:
+    path: "../generated_configuration/certificates/internal/{{ item.item.host }}.pem"
+    privatekey_path: ../generated_configuration/certificates/internal_private_key.key
+    csr_content: "{{ item.csr }}"
+    provider: selfsigned
+  when: item.csr is defined
+  with_items: "{{ internal_csr.results }}"
+
+- name: "[Self-Signed Certificate] - Create secrets for the internal hosts"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: tls
+      metadata:
+        name: "tls-certificate-internal-{{ item.host }}"
+        namespace: istio-ingress    
+      data:
+        tls.key: "{{ lookup('file', '../generated_configuration/certificates/internal_private_key.key') | b64encode }}"
+        tls.crt: "{{ lookup('file', '../generated_configuration/certificates/internal/' + item.host + '.pem') | b64encode }}"
+    kubeconfig: '../generated_configuration/kubeconfig'
+  when:
+    - item.create_self_signed_certificate is defined
+    - item.create_self_signed_certificate | bool
+  with_items: "{{ istio.internal_gateway.secure.tls.hosts }}"
