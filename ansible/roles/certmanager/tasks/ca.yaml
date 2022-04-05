@@ -1,0 +1,7 @@
+---
+
+- name: Create Custom CA
+  kubernetes.core.k8s:
+    state: present
+    template:
+      path: ca-issuer.yaml.j2

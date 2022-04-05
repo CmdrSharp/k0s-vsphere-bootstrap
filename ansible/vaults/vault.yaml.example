@@ -40,6 +40,18 @@ istio:
           - { host: your-public-domain.dev, create_self_signed_certificate: true }
 
 # ----------------------------------------------------------------------------------------
+#                                CERT-MANAGER CONFIGURATION
+#         Please see roles/certmanager/README.md for documentation on the variables.
+# ----------------------------------------------------------------------------------------
+cert_manager:
+  enabled: true
+  chart_version: 1.7.2
+  ca:
+    enabled: true
+    issuer_name: root-ca-issuer
+    common_name: MyIssuer CA
+
+# ----------------------------------------------------------------------------------------
 #                              MONITORING CONFIGURATION
 #         Please see roles/monitoring/README.md for documentation on the variables.
 # ----------------------------------------------------------------------------------------

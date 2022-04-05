@@ -16,6 +16,8 @@ This ingress is for applications that should be exposed publicly. The gateway `e
 With Istio, there is support for deploying with your own certificates, or with self-signed certificates. An example configuration is provided below.
 Simply adding more hosts will create additional bindings on the relevant istio gateway.
 
+This requires cert-manager to also be enabled.
+
 ```
 istio:
   enabled: true

@@ -1,0 +1,18 @@
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: external-gateway-certificate
+  namespace: istio-ingress
+spec:
+  dnsNames:
+{% for _host in istio.external_gateway.secure.tls.hosts %}
+{% if _host.create_self_signed_certificate %}
+  - {{ _host.host }}
+{% endif %}
+{% endfor %}
+  secretName: external-gateway-certificate
+  issuerRef:
+    name: root-ca-issuer
+    kind: ClusterIssuer

@@ -12,6 +12,7 @@ Items in italic are optional and can thus be disabled via values.
 - Installs
   - *[vSphere CPI CSI](ansible/roles/k0s/README.md)*
   - *[MetalLB](ansible/roles/k0s/README.md)*
+  - *[cert-manager](ansible/roles/certmanager/README.md)*
   - *[Istio](ansible/roles/istio/README.md)*
   - *[Grafana/Prometheus/Kiali Monitoring Stack](ansible/roles/monitoring/README.md)*
   - *The cluster test application [hello-kate](ansible/roles/hello-kate/README.md)*
@@ -25,7 +26,6 @@ It does NOT do management of existing clusters. It's intended to bootstrap the c
 **On the machine running the Ansible Playbook**
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
   - [Helm Module](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/helm_module.html) requires [Helm](https://helm.sh/docs/intro/install/) to be installed, as well as [PyYAML](https://pypi.org/project/PyYAML/).
-  - [OpenSSL Module](https://docs.ansible.com/ansible/2.7/modules/openssl_certificate_module.html) requires [pyOpenSSL](https://pypi.org/project/pyOpenSSL/). This is only needed if you plan to deploy with self-signed certificates.
 - [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
 - [k0sctl](https://github.com/k0sproject/k0sctl#installation)
 - Python3

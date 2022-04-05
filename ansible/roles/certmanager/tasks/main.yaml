@@ -1,0 +1,6 @@
+---
+
+- include: deploy.yaml
+
+- include_tasks: ca.yaml
+  when: cert_manager.ca.enabled | bool | default(ca.enabled)

@@ -1,0 +1,8 @@
+---
+
+enabled: true
+chart_version: 1.7.2
+ca:
+  enabled: true
+  issuer_name: root-ca-issuer
+  common_name: MyIssuer CA

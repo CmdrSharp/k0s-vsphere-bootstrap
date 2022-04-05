@@ -24,7 +24,7 @@ spec:
         protocol: HTTPS
       tls:
         mode: SIMPLE
-        credentialName: tls-certificate-internal-{{ _host.host }}
+        credentialName: internal-gateway-certificate
       hosts:
       - {{ _host.host }}
 {% endfor %}
@@ -58,7 +58,12 @@ spec:
         protocol: HTTPS
       tls:
         mode: SIMPLE
+{% if _host.create_self_signed_certificate is defined and _host.create_self_signed_certificate %}
+        credentialName: external-gateway-certificate
+{% endif %}
+{% if _host.create_self_signed_certificate is defined and not _host.create_self_signed_certificate and _host.certificate_path is defined %}
         credentialName: tls-certificate-external-{{ _host.host }}
+{% endif %}
       hosts:
       - {{ _host.host }}
 {% endfor %}

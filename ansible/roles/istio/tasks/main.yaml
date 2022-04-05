@@ -5,6 +5,7 @@
 - include_tasks: certificates/main.yaml
   when: >
     istio.ingress | bool and 
+    cert_manager.enabled | bool and 
     (istio.internal_gateway.secure.enabled | bool or 
     istio.external_gateway.secure.enabled | bool)
 

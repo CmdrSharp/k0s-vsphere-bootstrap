@@ -13,6 +13,7 @@
     - { role: 'terraform', task: 'deploy', tags: ['terraform'] }
     - { role: 'ha', when: (vm_output.outputs.lb_ip_addresses.value | length > 0), tags: ['ha', 'haproxy'] }
     - { role: 'k0s', tags: ['k0s'] }
+    - { role: 'certmanager', when: (cert_manager.enabled | bool), tags: ['certificate', 'certmanager'] }
     - { role: 'istio', when: (istio.enabled | bool), tags: ['istio'] }
     - { role: 'monitoring', tags: ['monitoring'] }
     - { role: 'hello-kate', when: (test_app.enabled | bool), tags: ['hello-kate', 'test-app'] }

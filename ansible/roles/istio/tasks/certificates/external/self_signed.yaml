@@ -1,40 +1,7 @@
 ---
 
-- name: "[Self-Signed Certificate] - Create certificate signing request (CSR) for external self-signed certificate"
-  community.crypto.openssl_csr_pipe:
-    privatekey_path: ../generated_configuration/certificates/external_private_key.key
-    common_name: "{{ item.host }}"
-    organization_name: K0s
-  register: external_csr
-  when:
-    - item.create_self_signed_certificate is defined
-    - item.create_self_signed_certificate | bool
-  with_items: "{{ istio.external_gateway.secure.tls.hosts }}"
-
-- name: "[Self-Signed Certificate] - Create external self-signed certificate from CSR"
-  community.crypto.x509_certificate:
-    path: "../generated_configuration/certificates/external/{{ item.item.host }}.pem"
-    privatekey_path: ../generated_configuration/certificates/external_private_key.key
-    csr_content: "{{ item.csr }}"
-    provider: selfsigned
-  when: item.csr is defined
-  with_items: "{{ external_csr.results }}"
-
-- name: "[Self-Signed Certificate] - Create secrets for the external hosts"
+- name: Create self-signed certificate for external hosts
   kubernetes.core.k8s:
     state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      type: tls
-      metadata:
-        name: "tls-certificate-external-{{ item.host }}"
-        namespace: istio-ingress    
-      data:
-        tls.key: "{{ lookup('file', '../generated_configuration/certificates/external_private_key.key') | b64encode }}"
-        tls.crt: "{{ lookup('file', '../generated_configuration/certificates/external/' + item.host + '.pem') | b64encode }}"
-    kubeconfig: '../generated_configuration/kubeconfig'
-  when:
-    - item.create_self_signed_certificate is defined
-    - item.create_self_signed_certificate | bool
-  with_items: "{{ istio.external_gateway.secure.tls.hosts }}"
+    template:
+      path: external_certificate.yaml.j2
