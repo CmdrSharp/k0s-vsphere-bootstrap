@@ -5,3 +5,4 @@
     state: present
     template:
       path: ca-issuer.yaml.j2
+    kubeconfig: '../generated_configuration/kubeconfig'
